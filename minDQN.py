@@ -1,5 +1,7 @@
 """
-Minimal Deep Q-Learning Implementation
+A Minimal Deep Q-Learning Implementation (minDQN)
+
+Running this code will render the agent solving the CartPole environment using OpenAI gym. Our Minimal Deep Q-Network is approximately 150 lines of code. In addition, this implementation uses Tensorflow and Keras and should generally run in less than 15 minutes.
 
 Usage: python3 minDQN.py
 """
@@ -23,14 +25,13 @@ np.random.seed(RANDOM_SEED)
 print("Action Space: {}".format(env.action_space))
 print("State space: {}".format(env.observation_space))
 
-
 # An episode a full game
 train_episodes = 300
 test_episodes = 100
 
 def agent(state_shape, action_shape):
     """ The agent maps X-states to Y-actions
-    e.g. The neural network output is [.1, .7, .05, 0.05, .05, .05]
+    e.g. The neural network output is [.1, .7, .1, .3]
     The highest value 0.7 is the Q-Value.
     The index of the highest action (0.7) is action #1.
     """
@@ -146,7 +147,5 @@ def main():
         epsilon = min_epsilon + (max_epsilon - min_epsilon) * np.exp(-decay * episode)
     env.close()
 
-
 if __name__ == '__main__':
     main()
-
