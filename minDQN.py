@@ -87,7 +87,7 @@ def main():
     decay = 0.01
 
     # 1. Initialize the Target and Main models
-    # Main Model (updated every step)
+    # Main Model (updated every 4 steps)
     model = agent(env.observation_space.shape, env.action_space.n)
     # Target Model (updated every 100 steps)
     target_model = agent(env.observation_space.shape, env.action_space.n)
