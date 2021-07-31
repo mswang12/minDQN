@@ -57,9 +57,9 @@ def train(env, replay_memory, model, target_model, done):
 
     batch_size = 64 * 2
     mini_batch = random.sample(replay_memory, batch_size)
-    current_states = np.array([encode_observation(transition[0], env.observation_space.shape) for transition in mini_batch])
+    current_states = np.array([transition[0] for transition in mini_batch])
     current_qs_list = model.predict(current_states)
-    new_current_states = np.array([encode_observation(transition[3], env.observation_space.shape) for transition in mini_batch])
+    new_current_states = np.array([transition[3] for transition in mini_batch])
     future_qs_list = target_model.predict(new_current_states)
 
     X = []
@@ -73,13 +73,11 @@ def train(env, replay_memory, model, target_model, done):
         current_qs = current_qs_list[index]
         current_qs[action] = (1 - learning_rate) * current_qs[action] + learning_rate * max_future_q
 
-        X.append(encode_observation(observation, env.observation_space.shape))
+        X.append(observation)
         Y.append(current_qs)
     model.fit(np.array(X), np.array(Y), batch_size=batch_size, verbose=0, shuffle=True)
 
-def encode_observation(observation, n_dims):
-    return observation
-
+    
 def main():
     epsilon = 1 # Epsilon-greedy algorithm in initialized at 1 meaning every step is random at the start
     max_epsilon = 1 # You can't explore more than 100% of the time
@@ -120,7 +118,7 @@ def main():
             else:
                 # Exploit best known action
                 # model dims are (batch, env.observation_space.n)
-                encoded = encode_observation(observation, env.observation_space.shape[0])
+                encoded = observation
                 encoded_reshaped = encoded.reshape([1, encoded.shape[0]])
                 predicted = model.predict(encoded_reshaped).flatten()
                 action = np.argmax(predicted)
