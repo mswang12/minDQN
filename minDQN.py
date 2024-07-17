@@ -19,7 +19,6 @@ RANDOM_SEED = 5
 tf.random.set_seed(RANDOM_SEED)
 
 env = gym.make('CartPole-v1')
-env.seed(RANDOM_SEED)
 np.random.seed(RANDOM_SEED)
 
 print("Action Space: {}".format(env.action_space))
@@ -41,7 +40,7 @@ def agent(state_shape, action_shape):
     model.add(keras.layers.Dense(24, input_shape=state_shape, activation='relu', kernel_initializer=init))
     model.add(keras.layers.Dense(12, activation='relu', kernel_initializer=init))
     model.add(keras.layers.Dense(action_shape, activation='linear', kernel_initializer=init))
-    model.compile(loss=tf.keras.losses.Huber(), optimizer=tf.keras.optimizers.Adam(lr=learning_rate), metrics=['accuracy'])
+    model.compile(loss=tf.keras.losses.Huber(), optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate), metrics=['accuracy'])
     return model
 
 def get_qs(model, state, step):
@@ -103,7 +102,7 @@ def main():
 
     for episode in range(train_episodes):
         total_training_rewards = 0
-        observation = env.reset()
+        observation = env.reset(seed=RANDOM_SEED)[0]
         done = False
         while not done:
             steps_to_update_target_model += 1
@@ -119,10 +118,11 @@ def main():
                 # Exploit best known action
                 # model dims are (batch, env.observation_space.n)
                 encoded = observation
-                encoded_reshaped = encoded.reshape([1, encoded.shape[0]])
+                encoded_reshaped = np.reshape(encoded, [1, env.observation_space.shape[0]])
                 predicted = model.predict(encoded_reshaped).flatten()
                 action = np.argmax(predicted)
-            new_observation, reward, done, info = env.step(action)
+            new_observation, reward, terminated, truncated, info = env.step(action)
+            done = terminated or truncated
             replay_memory.append([observation, action, reward, new_observation, done])
 
             # 3. Update the Main Network using the Bellman Equation
