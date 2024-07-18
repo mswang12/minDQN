@@ -15,6 +15,8 @@ from collections import deque
 import time
 import random
 
+import matplotlib.pyplot as plt  # Library for plotting
+
 RANDOM_SEED = 5
 tf.random.set_seed(RANDOM_SEED)
 
@@ -92,11 +94,7 @@ def main():
 
     replay_memory = deque(maxlen=50_000)
 
-    target_update_counter = 0
-
-    # X = states, y = actions
-    X = []
-    y = []
+    rewards = []
 
     steps_to_update_target_model = 0
 
@@ -104,6 +102,7 @@ def main():
         total_training_rewards = 0
         observation = env.reset(seed=RANDOM_SEED)[0]
         done = False
+        
         while not done:
             steps_to_update_target_model += 1
             if True:
@@ -134,6 +133,7 @@ def main():
 
             if done:
                 print('Total training rewards: {} after n steps = {} with final reward = {}'.format(total_training_rewards, episode, reward))
+                rewards.append(total_training_rewards)
                 total_training_rewards += 1
 
                 if steps_to_update_target_model >= 100:
@@ -144,6 +144,14 @@ def main():
 
         epsilon = min_epsilon + (max_epsilon - min_epsilon) * np.exp(-decay * episode)
     env.close()
+
+    plt.figure(figsize=(10,6))  # Set the figure size
+    plt.plot(rewards, label='Q-learning Train')  # Plot Q-learning training rewards
+    plt.xlabel('Episode')  # Label x-axis
+    plt.ylabel('Total Reward')  # Label y-axis
+    plt.title('Q-Learning (Episode vs Rewards)')
+    plt.legend()  # Display legend
+    plt.show()  # Show the plot
 
 if __name__ == '__main__':
     main()
